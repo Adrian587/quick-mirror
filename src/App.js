@@ -1,23 +1,50 @@
-import logo from './logo.svg';
+import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
-
+import useWindowDimensions from './hooks/useWindowDimensions';
 function App() {
+  const videoRef = useRef(null);
+  const { height, width } = useWindowDimensions();
+  const [isMirrorFlipped, setIsMirrorFlipped] = useState(false);
+
+  const HEIGHT = height - 40;
+  const WIDTH = width;
+
+  useEffect(() => {
+    navigator.getUserMedia(
+      {
+        video: true,
+      },
+      (stream) => {
+        let video = videoRef.current;
+        if (video) {
+          video.srcObject = stream;
+        }
+      },
+      (err) => console.error(err)
+    );
+  }, []);
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <div className="columns">
+        <video
+          height={HEIGHT}
+          width={WIDTH}
+          muted
+          autoPlay
+          ref={videoRef}
+          className={isMirrorFlipped ? 'video-flipped' : null}
+        ></video>
+      </div>
+      {!isMirrorFlipped ? <text> This is how your Zoom coworkers see you!</text> : null}
+
+      <div className="app__input">
+        <button onClick={() => setIsMirrorFlipped(!isMirrorFlipped)} className="button-one">
+          Mirror
+        </button>
+
+      </div>
     </div>
   );
 }
